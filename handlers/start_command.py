@@ -1,7 +1,7 @@
-from aiogram import Router, Bot
+from aiogram import Router, Bot, html
 from aiogram.filters import Command
 from aiogram.types import Message
-from keyboards.inline_keyboard import builder
+from keyboards.inline_keyboard import start_keyboard_with_no_auth
 from config_reader import config
 from handlers.authentication import check_sub_channel
 from filters.chat_type_filter import ChatTypeFilter
@@ -12,17 +12,11 @@ router.message.filter(
 )
 
 
-@router.message(Command("start"))
-async def cmd_start(message: Message, bot: Bot):
-    if not check_sub_channel(chat_member=await bot.get_chat_member(config.main_chat_id, message.from_user.id)):
-        await message.answer(
-            text="Бот перезапущен",
-            show_alert=True
-        )
-        return
+@router.message(Command("start"))  # команда начала бота
+async def cmd_start(message: Message):
     await message.answer(
-        text="Подпишись на группу и зарегистрируйся, иначе не получится воспользоваться ботом!",
-        reply_markup=builder.adjust(2).as_markup()  # + builder_menu_not_registered
+        text=f'Добро пожаловать в столицу текстильных идей {html.bold("МИРТЕК")}!',
+        reply_markup=start_keyboard_with_no_auth.adjust(1).as_markup()
     )
 
 

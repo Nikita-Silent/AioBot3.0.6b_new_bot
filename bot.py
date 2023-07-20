@@ -12,7 +12,7 @@ from handlers import start_command, register_form, authentication, callbacks, us
 from utils.commands import set_commands
 
 from middlewares.dbmiddleware import DbSession
-from middlewares.auntificatemiddleware import AuthenticationMiddleware
+# from middlewares.auntificatemiddleware import AuthenticationMiddleware
 
 
 async def create_pool():
@@ -28,7 +28,7 @@ async def main():
     pool_connect = await create_pool()
     storage = RedisStorage.from_url('redis://localhost:6379/0')
     dp = Dispatcher(storage=storage)
-    dp.callback_query.middleware.register(AuthenticationMiddleware())
+#    dp.callback_query.middleware.register(AuthenticationMiddleware())
     dp.update.middleware.register(DbSession(pool_connect))
     bot = Bot(config.bot_token.get_secret_value(),  parse_mode="HTML")
 

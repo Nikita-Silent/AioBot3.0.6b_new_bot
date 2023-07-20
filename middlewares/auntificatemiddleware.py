@@ -20,7 +20,7 @@ class AuthenticationMiddleware(BaseMiddleware):
             member = await bot.get_chat_member(
                 config.main_chat_id, event.from_user.id
             )
-            registered = await request.get_data(event.from_user.id)
+            registered = await request.get_data(event.from_user.id)  # Проверка по бд
             if member.status != "left" and registered is not None:
                 return await handler(event, data)
             if member.status != "left" and event.data == 'register':

@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.filters import Command
 from utils.satesform import StepsForm
 from keyboards.replay_keyboard import contact_keyboard
-from keyboards.inline_keyboard import builder_re_register, builder_move_to_menu
+from keyboards.inline_keyboard import builder_move_to_menu
 from database.dbconnect import Request
 from filters.contact_filter import IsTrueContact
 from filters.date_of_birth_filter import IsTrueDOB
@@ -82,7 +82,7 @@ async def get_mail(message: Message, state: FSMContext, request: Request):
         text=f"Вы зарегестрировались как:{user_data['first_name']} {user_data['last_name']}\n"
              f"Ваша дата рождения: {user_data['date_of_birth']}\n"
              f"Ваша почта: {user_data['mail']} \n Ваш номер телефона: {user_data['phone_number']}",
-        reply_markup=builder_re_register.as_markup()
+        reply_markup=builder_move_to_menu.as_markup()
     )
     await request.add_data(message.from_user.id, user_data['first_name'], user_data['last_name'],
                            user_data['mail'], user_data['phone_number'], user_data['date_of_birth'])
