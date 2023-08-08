@@ -6,7 +6,7 @@ async def set_commands(bot: Bot):
     commands_for_private = [
         BotCommand(
             command="start",
-            description="Начало работы"
+            description="Начало работы/Перезапуск бота"
         ),
         BotCommand(
             command="cancel",

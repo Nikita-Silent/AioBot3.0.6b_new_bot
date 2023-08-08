@@ -20,6 +20,14 @@ class Request:
                  f"ON CONFLICT (request_id) DO UPDATE SET person_name='{person_name}'"
         await self.connector.execute(query)
 
+    async def add_card_trouble_data(self, request_id, user_id, person_name, phone_number, problem, status):
+        query = f"INSERT INTO troubles_with_card (request_id, user_id, person_name, " \
+                f"phone_number, problem, status)"\
+                f"VALUES ({request_id}, {user_id}, '{person_name}', '{phone_number}', " \
+                f"'{problem}', '{status}') " \
+                 f"ON CONFLICT (request_id) DO UPDATE SET person_name='{person_name}'"
+        await self.connector.execute(query)
+
     async def update_data(self, request_id, request_status):
         query = f"UPDATE group_data SET request_status = '{request_status}' WHERE request_id = '{request_id}'"
         await self.connector.execute(query)

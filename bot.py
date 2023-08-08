@@ -4,10 +4,12 @@ import asyncpg
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
-
+from datetime import datetime
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from schedulers.scheduler_delete_from_db_by_time import delete_tasks_from_db
 from config_reader import config
-from handlers import start_command, register_form, authentication, callbacks, usernames, ask_a_question_callback, \
-    about_user_callback, need_help_group, tasks_from_group
+from handlers import start_command, register_form, callbacks, ask_a_question_callback, \
+    need_help_group, tasks_from_group, auth_callback, no_auth_callback, troubles_with_card_handler
 
 from utils.commands import set_commands
 
@@ -32,17 +34,22 @@ async def main():
     dp.update.middleware.register(DbSession(pool_connect))
     bot = Bot(config.bot_token.get_secret_value(),  parse_mode="HTML")
 
-    dp.include_router(ask_a_question_callback.router)
-    dp.include_router(about_user_callback.router)
+    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+    scheduler.add_job(delete_tasks_from_db, trigger='interval', seconds=10, kwargs={'bot': bot})
+
+    dp.include_router(auth_callback.router)
+    dp.include_router(no_auth_callback.router)
     dp.include_router(start_command.router)
+    dp.include_router(ask_a_question_callback.router)
     dp.include_router(callbacks.router)
-    dp.include_router(authentication.router)
+    dp.include_router(troubles_with_card_handler.router)
     dp.include_router(register_form.router)
-    dp.include_router(usernames.router)
+#    dp.include_router(usernames.router)
     dp.include_router(need_help_group.router)
     dp.include_router(tasks_from_group.router)
 
     await set_commands(bot)
+    # scheduler.start()
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 

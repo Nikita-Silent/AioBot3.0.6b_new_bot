@@ -1,15 +1,27 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
-from keyboards.inline_keyboard import builder_faq, loyal_card_register_menu, \
-    start_keyboard_with_no_auth, start_keyboard_with_auth, review_dro_keyboard
+from filters.chat_type_filter import ChatTypeFilter
+from keyboards.inline_keyboard import loyal_card_register_menu,  review_dro_keyboard, loyal_card_menu_keyboard, \
+                                      question_menu, builder_faq
 
 router = Router()
+router.message.filter(
+    ChatTypeFilter(chat_type=["private"])
+)
+
+
+@router.callback_query(F.data == 'ask')
+async def ask(callback_query: CallbackQuery):
+    await callback_query.message.edit_text(
+        text=f"❓ {callback_query.from_user.first_name}, выберите что Вы хотите",
+        reply_markup=question_menu.adjust(1).as_markup()
+    )
 
 
 @router.callback_query(F.data == 'faq')
 async def faq(callback_query: CallbackQuery):
     await callback_query.message.edit_text(
-        text="FAQ",
+        text=f"❓ Часто задаваемые вопросы",
         reply_markup=builder_faq.adjust(1).as_markup()
     )
 
@@ -24,24 +36,18 @@ async def review(callback_query: CallbackQuery):
 
 
 @router.callback_query(F.data == 'loyal_card_question')
-async def review(callback_query: CallbackQuery):
+async def loyal_card_question(callback_query: CallbackQuery):
     await callback_query.message.edit_text(
         text="💳 У Вас есть карта лояльности? ",
         reply_markup=loyal_card_register_menu.adjust(1).as_markup()
     )
 
 
-@router.callback_query(F.data == 'menu_no_auth')
-async def menu(callback_query: CallbackQuery):
+@router.callback_query(F.data == 'loyal_card_menu')
+async def loyal_card_menu(callback_query: CallbackQuery):
     await callback_query.message.edit_text(
-        text="Меню бота",
-        reply_markup=start_keyboard_with_no_auth.adjust(1).as_markup()
+        text=f"💳 {callback_query.from_user.first_name}, выберите что вы хотите",
+        reply_markup=loyal_card_menu_keyboard.adjust(1).as_markup()
     )
 
 
-@router.callback_query(F.data == 'menu_auth')
-async def menu(callback_query: CallbackQuery):
-    await callback_query.message.edit_text(
-        text="Меню бота",
-        reply_markup=start_keyboard_with_auth.adjust(1).as_markup()
-    )
