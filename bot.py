@@ -4,7 +4,6 @@ import asyncpg
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
-from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from schedulers.scheduler_delete_from_db_by_time import delete_tasks_from_db
 from config_reader import config
@@ -18,8 +17,8 @@ from middlewares.dbmiddleware import DbSession
 
 
 async def create_pool():
-    return await asyncpg.create_pool(user='postgres', password='Hrustal25', database='tg_bot',
-                                     host='localhost', port=5432, command_timeout=60)
+    return await asyncpg.create_pool(user=config.db_user, password=config.db_password, database=config.db_name,
+                                     host=config.db_host, port=config.db_port, command_timeout=60)
 
 
 async def main():
@@ -28,7 +27,7 @@ async def main():
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )
     pool_connect = await create_pool()
-    storage = RedisStorage.from_url('redis://localhost:6379/0')
+    storage = RedisStorage.from_url(config.redis_dsn)
     dp = Dispatcher(storage=storage)
 #    dp.callback_query.middleware.register(AuthenticationMiddleware())
     dp.update.middleware.register(DbSession(pool_connect))
