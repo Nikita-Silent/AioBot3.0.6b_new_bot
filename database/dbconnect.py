@@ -32,6 +32,10 @@ class Request:
         query = f"UPDATE group_data SET request_status = '{request_status}' WHERE request_id = '{request_id}'"
         await self.connector.execute(query)
 
+    async def update_card_data(self, request_id, status):
+        query = f"UPDATE troubles_with_card SET status = '{status}' WHERE request_id = '{request_id}'"
+        await self.connector.execute(query)
+
     async def try_to_take(self, request_id):
         query = f"SELECT * FROM group_data WHERE request_id = {request_id}"
         row = await self.connector.fetchrow(query)
@@ -44,6 +48,11 @@ class Request:
 
     async def get_all_request_numbers(self):
         query = f"SELECT request_id FROM group_data"
+        row = await self.connector.fetch(query)
+        return row
+
+    async def get_all_request_troubles_with_card(self):
+        query = f"SELECT request_id FROM troubles_with_card"
         row = await self.connector.fetch(query)
         return row
 

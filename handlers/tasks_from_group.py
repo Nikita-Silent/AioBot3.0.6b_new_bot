@@ -1,5 +1,5 @@
 from typing import List
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, ReplyKeyboardRemove
 from middlewares.staff_auntificatemiddlware import StaffAuthenticationMiddleware
@@ -10,15 +10,7 @@ router = Router()
 router.message.middleware(StaffAuthenticationMiddleware())
 
 
-@router.message(Command('ban'), F.reply_to_message.as_("replied_message"))  # NE RABOTAET
-async def cmd_schedule(message: Message):
-    await message.answer(
-        text=f'{message.from_user.username},у вас недостаточно прав\n',
-        reply_markup=ReplyKeyboardRemove()
-    )
-
-
-@router.message(Command('schedule'))
+@router.message(Command('schedule'))  # не работает
 async def cmd_schedule(message: Message, request: Request):
     group_data = await request.get_group()
     await message.answer(
@@ -37,20 +29,19 @@ async def cmd_schedule(message: Message, request: Request):
 
 
 @router.message(Command('task_solved'), F.reply_to_message.as_("replied_message"), HasRequestIdFilter())
-async def cmd_task_solved(message: Message, found_request_id: List[str], request: Request, bot: Bot):
+async def cmd_task_solved(message: Message, found_request_id: List[str], request: Request):
     string = ''.join(found_request_id)
-    # print(await request.try_to_take(str(found_request_id)))
-    request_status = '✅ Выполнено'
-    await request.update_data(string[8:], request_status)
-    await message.answer(f'Задача {", ".join(found_request_id)} сменила статус на\n{request_status}')
+    status = '✅ Выполнено'
+    await request.update_card_data(string[17:], status)
+    await message.answer(f'Задача {", ".join(found_request_id)} сменила статус на\n{status}')
     # [[", ".join(map(str, data)) for data in rec_data] for rec_data in group_data]
 
 
 @router.message(Command('task_in_progress'), F.reply_to_message.as_("replied_message"), HasRequestIdFilter())
-async def cmd_task_solved(message: Message, found_request_id: List[str], request: Request, bot: Bot):
+async def cmd_task_solved(message: Message, found_request_id: List[str], request: Request):
     string = ''.join(found_request_id)
     # print(await request.try_to_take(str(found_request_id)))
-    request_status = '⚠ В процессе'
-    await request.update_data(string[8:], request_status)
-    await message.answer(f'Задача {", ".join(found_request_id)} сменила статус на\n{request_status}')
+    status = '⚠ В процессе'
+    await request.update_card_data(string[17:], status)
+    await message.answer(f'Задача {", ".join(found_request_id)} сменила статус на\n{status}')
     # [[", ".join(map(str, data)) for data in rec_data] for rec_data in group_data]

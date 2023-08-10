@@ -15,10 +15,6 @@ async def set_commands(bot: Bot):
     ]
     commands_for_group = [
         BotCommand(
-            command="schedule",
-            description="Текущие заявки"
-        ),
-        BotCommand(
             command="task_solved",
             description='Перевести заявку в статус "✅ Выполненные"'
         ),

@@ -1,11 +1,10 @@
 from random import randint
-from aiogram import Router, F, Bot
+from aiogram import Router, F, Bot, html
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from filters.chat_type_filter import ChatTypeFilter
 from filters.phone_filter import IsTruePhone
 from utils.satesform import StepsFormTroublesWithCard
-from keyboards.replay_keyboard import make_row_keyboard
 from keyboards.inline_keyboard import move_to_menu, answer_for_final_question
 from aiogram.types.reply_keyboard_remove import ReplyKeyboardRemove
 from config_reader import config
@@ -13,7 +12,17 @@ from database.dbconnect import Request
 
 router = Router()
 router.message.filter(ChatTypeFilter(chat_type=["private"]))
-cancel_list = ['Отменить', '/cancel', 'отменить', 'ОТМЕНА', 'отмена', 'Отмена', 'jnvtyf']
+cancel_list = ['Отменить', '/cancel', 'отменить', 'ОТМЕНА', 'отмена', 'Отмена', 'jnvtyf', 'cancel']
+
+
+@router.message(F.text.in_(cancel_list))  # If incorrect answer for previous question
+async def cancel_all(message: Message, state: FSMContext):
+    await message.answer(
+        text=f'Вы {html.bold("отменили")} создание заявки.',
+        reply_markup=move_to_menu.adjust(1).as_markup()
+    )
+    await state.clear()
+
 
 @router.callback_query(F.data == 'troubles_with_card')
 async def cmd_need_help(callback_data: CallbackQuery, state: FSMContext):
@@ -25,7 +34,7 @@ async def cmd_need_help(callback_data: CallbackQuery, state: FSMContext):
     )
     await callback_data.message.answer(
         text=f'Пожалуйста укажите ваш текущий номер в поле "Сообщение" 🔽(внизу)\n'
-             f'P.s Это необходимо для того, чтобы в случае возникновения у нас вопросов мы могли связаться с вами',
+             f'{html.bold("P.s Это необходимо для того, чтобы в случае возникновения у нас вопросов мы могли связаться с вами")}',
         reply_markup=ReplyKeyboardRemove()
     )
     await state.set_state(StepsFormTroublesWithCard.phone_number)
@@ -37,10 +46,12 @@ async def phone_number_written(message: Message, state: FSMContext):
     await message.answer(
         text=f'Чтобы мы могли эффективнее работать следуйте пунктам приведенным ниже: \n'
              f'1. Напишите номер телефона, что был привязан к карте с которой возникла проблема.\n'
-             f'2. Напишите с чем возникла проблема (отображение дивидендов, не считывается карта на кассе) \n'
-             f'3. Самый важный пункт! Отправльте все одним текстовым сообщением иначе мы увидим только часть \n'
-             f'4. Все вышеперечисленное надо указать в поле "Сообщение" 🔽(внизу)',
+             f'2. Напишите с чем возникла проблема (отображение дивидендов, не считывается карта на кассе и прочее) \n'
+             f'3. Самый важный пункт! Отправльте все одним текстовым сообщением иначе мы увидим только часть \n',
         reply_markup=ReplyKeyboardRemove()
+    )
+    await message.answer(
+        text=html.bold('4.Все вышеперечисленное надо указать в поле "Сообщение" 🔽(внизу)'),
     )
     await state.set_state(StepsFormTroublesWithCard.reason_written)
 
@@ -49,7 +60,7 @@ async def phone_number_written(message: Message, state: FSMContext):
 async def phone_number_written_incorrect(message: Message):
     await message.answer(
         text=f'Пожалуйста укажите ваш текущий номер правильно \n'
-             f'Примеры: +79039859055, или 89039859055, или 9039859055\n'
+             f'Примеры: +78007009563 , или 88007009563, или 8007009563\n'
              f'P.s Это необходимо для того, чтобы в случае возникновения у нас вопросов мы могли связаться с вами',
         reply_markup=ReplyKeyboardRemove()
     )
@@ -64,8 +75,8 @@ async def request_text_written(message: Message, state: FSMContext):
              f'Если все правильно нажмите Да на клавиатуре внизу \n'
              f'Если хотите отменить заявку нажмите на Отменить\n'
              f'P.s. Если вы что-то указали неправильно, то пересоздайте заявку\n'
-             f'Ваш номер телефона: {problem["phone_number"]}\n '
-             f'Описание проблемы: {problem["request_text"]}\n ',
+             f'Ваш номер телефона: {problem["phone_number"]}\n'
+             f'Описание проблемы: {problem["request_text"]}\n',
         reply_markup=answer_for_final_question.adjust(1).as_markup()
     )
     await state.set_state(StepsFormTroublesWithCard.everything_is_ok_question)
@@ -75,7 +86,7 @@ async def request_text_written(message: Message, state: FSMContext):
 async def answer_is_ok(callback_data: CallbackQuery, bot: Bot, state: FSMContext, request: Request):
     number_of_request = randint(1, 1000000000000)
     problem = await state.get_data()
-    await callback_data.message.answer(
+    await callback_data.message.edit_text(
         text=f'Ваша заявка принята в работу! Ожидайте ответа в ЛС\n',
         reply_markup=move_to_menu.adjust(1).as_markup()
     )
@@ -91,11 +102,11 @@ async def answer_is_ok(callback_data: CallbackQuery, bot: Bot, state: FSMContext
     await state.clear()
 
 
-@router.callback_query(StepsFormTroublesWithCard.everything_is_ok_question, F.data == 'answer_for_final_question_cancel')
+@router.callback_query(StepsFormTroublesWithCard.everything_is_ok_question,
+                       F.data == 'answer_for_final_question_cancel')
 async def answer_is_cancel(callback_data: CallbackQuery, state: FSMContext):
-    await callback_data.message.answer(
-        text=f'Вы отменили создание заявки.',
-        reply_markup=ReplyKeyboardRemove()
+    await callback_data.message.edit_text(
+        text=f'Вы отменили создание заявки.'
     )
     await state.clear()
 
@@ -105,7 +116,8 @@ async def answer_is_cancel(callback_data: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(StepsFormTroublesWithCard.everything_is_ok_question, F.data == 'answer_for_final_question_recreate')
+@router.callback_query(StepsFormTroublesWithCard.everything_is_ok_question,
+                       F.data == 'answer_for_final_question_recreate')
 async def answer_is_rebuild(callback_data: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback_data.message.edit_text(
@@ -119,12 +131,3 @@ async def answer_is_rebuild(callback_data: CallbackQuery, state: FSMContext):
              f'P.s Это необходимо для того, чтобы в случае возникновения у нас вопросов мы могли связаться с вами'
     )
     await state.set_state(StepsFormTroublesWithCard.phone_number)
-
-
-@router.message(F.text.in_(cancel_list))  # If incorrect answer for previous question
-async def cancel_all(message: Message, state: FSMContext):
-    await message.answer(
-        text=f'Вы отменили создание заявки.',
-        reply_markup=move_to_menu.adjust(1).as_markup()
-    )
-    await state.clear()

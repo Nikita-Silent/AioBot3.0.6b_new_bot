@@ -17,8 +17,7 @@ from middlewares.dbmiddleware import DbSession
 
 
 async def create_pool():
-    return await asyncpg.create_pool(user=config.db_user, password=config.db_password, database=config.db_name,
-                                     host=config.db_host, port=config.db_port, command_timeout=60)
+    return await asyncpg.create_pool(config.postgres_dsn, command_timeout=60)
 
 
 async def main():

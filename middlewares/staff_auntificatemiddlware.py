@@ -18,9 +18,6 @@ class StaffAuthenticationMiddleware(BaseMiddleware):
             member_of_channel = await bot.get_chat_member(
                 config.main_chat_id, event.from_user.id
             )
-            member_of_group = await bot.get_chat_member(
-                config.second_chat_id, event.from_user.id
-            )
-            if member_of_group.status != "left" and member_of_channel.status != "left":
+            if member_of_channel.status != "left":
                 return await handler(event, data)
 
