@@ -1,8 +1,10 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+import httpx
+from aiogram.types import CallbackQuery, BufferedInputFile
 from filters.chat_type_filter import ChatTypeFilter
+from api_connections.qr_api import payload, headers, url
 from keyboards.inline_keyboard import loyal_card_register_menu,  review_dro_keyboard, loyal_card_menu_keyboard, \
-                                      question_menu, builder_faq
+                                      question_menu, builder_faq, move_to_menu
 
 router = Router()
 router.message.filter(
@@ -50,4 +52,14 @@ async def loyal_card_menu(callback_query: CallbackQuery):
         reply_markup=loyal_card_menu_keyboard.adjust(1).as_markup()
     )
 
+
+@router.callback_query(F.data == 'get_share_qr')
+async def loyal_card_menu(callback_query: CallbackQuery):
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, json=payload, headers=headers)
+        if response.status_code == 200:
+            photo = BufferedInputFile(response.content, filename='qr_mirteck')
+            await callback_query.message.answer_photo(photo=photo, caption='Ваш QR для создания карты лояльности')
+        else:
+            print('Ошибка при выполнении запроса:', response.status_code)
 

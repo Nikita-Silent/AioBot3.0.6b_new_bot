@@ -11,9 +11,18 @@ router.message.filter(AuthenticationFilter())
 router.callback_query.filter(AuthenticationFilter())
 
 
-@router.callback_query(F.data == 'menu')
+@router.callback_query(F.data == 'menu_edit_text')
 async def about_user(callback_query: CallbackQuery):
     await callback_query.message.edit_text(
+        text=f"Меню",
+        reply_markup=menu_keyboard_with_auth.adjust(1).as_markup()
+    )
+    info('AUTH_MENU_OPENED')
+
+
+@router.callback_query(F.data == 'menu')
+async def about_user(callback_query: CallbackQuery):
+    await callback_query.message.answer(
         text=f"Меню",
         reply_markup=menu_keyboard_with_auth.adjust(1).as_markup()
     )

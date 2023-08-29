@@ -7,3 +7,4 @@ menu_keyboard_with_auth.button(text="🌐 Перейти на сайт", url='ht
 menu_keyboard_with_auth.button(text="📝 Оставить отзыв", callback_data='make_a_review')
 # menu_keyboard_with_auth.button(text="💳 Карта лояльности", callback_data='loyal_card_menu')
 menu_keyboard_with_auth.button(text="💳 У меня не работает карта лояльности", callback_data='troubles_with_card')
+menu_keyboard_with_auth.button(text="QR (поделиться картой)", callback_data='get_share_qr')

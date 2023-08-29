@@ -7,7 +7,7 @@ question_menu.button(text="📞 Задать вопрос", callback_data='ask_a
 question_menu.button(text=" ◀️ Назад ", callback_data='menu')
 
 loyal_card_register_menu: InlineKeyboardBuilder = InlineKeyboardBuilder()
-loyal_card_register_menu.button(text=" 💳 Зарегистрировать карту лояльности", callback_data='register')
+# loyal_card_register_menu.button(text=" 💳 Зарегистрировать карту лояльности", callback_data='register')
 loyal_card_register_menu.button(text=" 💳 У меня уже есть карта лояльности", callback_data='#')
 loyal_card_register_menu.button(text=" ◀️ Назад ", callback_data='menu')
 
@@ -33,6 +33,9 @@ builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
 builder.add(InlineKeyboardButton(text="Подписаться на канал", url='https://t.me/testGroup_v1'))
 builder.add(InlineKeyboardButton(text="Зарегистрироваться", callback_data='register'))
 builder.add(InlineKeyboardButton(text="Я уже подписан и зарегистрирован", callback_data='done'))
+
+move_to_menu_edit_text: InlineKeyboardBuilder = InlineKeyboardBuilder()
+move_to_menu_edit_text.button(text='🔍 МЕНЮ ', callback_data='menu_edit_text')
 
 move_to_menu: InlineKeyboardBuilder = InlineKeyboardBuilder()
 move_to_menu.button(text='🔍 МЕНЮ ', callback_data='menu')

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     main_chat_id: int
     postgres_dsn: PostgresDsn
     redis_dsn: RedisDsn
-
+    qr: SecretStr
     # Вложенный класс с дополнительными указаниями для настроек
     class Config:
         # Имя файла, откуда будут прочитаны данные
